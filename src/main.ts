@@ -11,38 +11,15 @@ umi.use(keypairIdentity(keypair))
     .use(mplTokenMetadata())
 
 const metadata = {
-    name: "Solana Gold",
-    symbol: "GOLDSOL",
+    name: "M Solana",
+    symbol: "mSol",
     uri: "https://raw.githubusercontent.com/solana-developers/program-examples/new-examples/tokens/tokens/.assets/spl-token.json",
 };
 
 const mint = generateSigner(umi);
 
-// async function createMetadataDetails() {
-//     await createV1(umi, {
-//         mint,
-//         authority: umi.identity,
-//         name: metadata.name,
-//         symbol: metadata.symbol,
-//         uri: metadata.uri,
-//         sellerFeeBasisPoints: percentAmount(0),
-//         decimals: 9,
-//         tokenStandard: TokenStandard.Fungible,
-//     }).sendAndConfirm(umi)
-// }
-
-// async function mintToken() {
-//     await mintV1(umi, {
-//         mint: mint.publicKey,
-//         authority: umi.identity,
-//         amount: 10_000,
-//         tokenOwner: umi.identity.publicKey,
-//         tokenStandard: TokenStandard.Fungible,
-//     }).sendAndConfirm(umi)
-// }
-
-async function createFungibleOneLiner() {
-    createFungible(umi, {
+async function createMetadataDetails() {
+    await createV1(umi, {
         mint,
         authority: umi.identity,
         name: metadata.name,
@@ -50,18 +27,42 @@ async function createFungibleOneLiner() {
         uri: metadata.uri,
         sellerFeeBasisPoints: percentAmount(0),
         decimals: 9,
+        tokenStandard: TokenStandard.Fungible,
     }).sendAndConfirm(umi)
 }
 
-createFungibleOneLiner()
-    .then(() => console.log(`success \ntx: https://explorer.solana.com/address/${mint.publicKey}?cluster=devnet`))
+async function mintToken() {
+    await mintV1(umi, {
+        mint: mint.publicKey,
+        authority: umi.identity,
+        amount: 10_000,
+        tokenOwner: umi.identity.publicKey,
+        tokenStandard: TokenStandard.Fungible,
+    }).sendAndConfirm(umi)
+}
+
+createMetadataDetails().
+    then(() => {
+        console.log('successfully created our metadata accounts')
+        mintToken()
+            .then(() => console.log("Successfully minted our mSol Token"))
+            .catch(err => console.error("error minting the tokens", err))
+    })
     .catch(err => console.error("error minting the tokens", err))
 
 
-// createMetadataDetails().
-//     then(() => console.log('successfully crated our metadata accounts'))
-//     .catch(err => console.error("error minting the tokens", err))
+// async function createFungibleOneLiner() {
+//     createFungible(umi, {
+//         mint,
+//         authority: umi.identity,
+//         name: metadata.name,
+//         symbol: metadata.symbol,
+//         uri: metadata.uri,
+//         sellerFeeBasisPoints: percentAmount(0),
+//         decimals: 9,
+//     }).sendAndConfirm(umi)
+// }
 
-// mintToken()
-//     .then(() => console.log("Successfully minted our Gold Token"))
+// createFungibleOneLiner()
+//     .then(() => console.log(`success \ntx: https://explorer.solana.com/address/${mint.publicKey}?cluster=devnet`))
 //     .catch(err => console.error("error minting the tokens", err))
